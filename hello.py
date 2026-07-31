@@ -5,6 +5,7 @@ tasks =[
 ]
 
 from fastapi import FastAPI
+from fastapi.responses import JSONResponse
 
 app = FastAPI()
 
@@ -24,6 +25,25 @@ async def get_task_by_id(id:int):
     return JSONResponse(
         status_code=404,
         content={"error": f"Task {id} not found"}
+    )
+
+@app.post("/tasks")
+async def create_task(task: dict):
+    title = task.get("title")
+    if title is None or title.strip() == "":
+        return JSONResponse(
+            status_code=400,
+            content={"error": "Task title is required"}
+        )
+    new_task = {
+        "id": len(tasks) + 1,
+        "title": title.strip(),
+        "done": False
+    }
+    tasks.append(new_task)
+    return JSONResponse(
+        status_code=201,
+        content= new_task
     )
 
 @app.get("/health")
