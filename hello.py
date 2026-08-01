@@ -11,7 +11,10 @@ app = FastAPI()
 
 @app.get("/")
 async def root():
-    return {"name": "Task API", "version": "1.0", "endpoints": ["/tasks"] }
+    return JSONResponse(
+        status_code = 200,
+        content = {"name": "Task API", "version": "1.0", "endpoints": ["/tasks"] }
+    )
 
 @app.get("/tasks")
 async def get_all_tasks():
@@ -44,6 +47,46 @@ async def create_task(task: dict):
     return JSONResponse(
         status_code=201,
         content= new_task
+    )
+
+@app.put("/tasks/{id}")
+async def update_task(id: int, task: dict):
+    if not task:
+        return JSONResponse(
+            status_code=400,
+            content={"error":"Body required"}
+        )
+    for i in tasks:
+        if i["id"] == id:
+            title = task.get("title")
+            done = task.get("done")
+            if title is None and done is None:
+                return JSONResponse(
+                    status_code=400,
+                    content={"error":"title or done is required"}
+                )
+            if title is not None:
+                i["title"] = title
+            if done is not None:
+                i["done"] = done
+            return i
+    return JSONResponse(
+        status_code=404,
+        content={"error":"Task not found"}
+    )
+
+@app.delete("/tasks/{id}")
+async def delete_task(id: int):
+    for i in tasks:
+        if i["id"] == id:
+            tasks.remove(i)
+            return JSONResponse(
+                status_code=204,
+                content={}
+            )
+    return JSONResponse(
+        status_code=404,
+        content={"error":"Task not found"}
     )
 
 @app.get("/health")
