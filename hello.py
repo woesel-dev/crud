@@ -92,3 +92,5 @@ async def delete_task(id: int):
 @app.get("/health")
 async def health_check():
     return { "status": "ok"}
+
+#Checked Swagger UI
