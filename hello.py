@@ -1,3 +1,30 @@
+import sqlite3
+
+def init_db():
+    conn = sqlite3.connect('tasks.db')
+    cursor = conn.cursor()
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS tasks (
+            id INTEGER PRIMARY KEY,
+            title TEXT,
+            done INTEGER
+        )
+    ''')
+    cursor.execute("SELECT COUNT(*) FROM tasks")
+    if cursor.fetchone()[0] == 0:
+        cursor.executemany(
+            "INSERT INTO tasks (title, done) VALUES (?, ?)",
+            [
+                ("Buy a book", 0),
+                ("Write Lab Assignment", 1),
+                ("Walk the dog", 0),
+            ]
+        )
+    conn.commit()
+    conn.close()
+
+init_db()
+
 tasks =[
     {"id": 1, "title":"Buy a book", "done": False},
     {"id": 2, "title":"Write Lab Assignment", "done": True},
