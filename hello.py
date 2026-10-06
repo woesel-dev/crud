@@ -76,15 +76,26 @@ async def create_task(task: dict):
             status_code=400,
             content={"error": "Task title is required"}
         )
+    
+    conn = sqlite3.connect('tasks.db')
+    cursor = conn.cursor()
+    cursor.execute(
+        "INSERT INTO tasks (title, done) VALUES (?, ?)",
+        (title.strip(), 0)
+    )
+    new_id = cursor.lastrowid
+    conn.commit()
+    conn.close()
+    
     new_task = {
-        "id": len(tasks) + 1,
+        "id": new_id,
         "title": title.strip(),
         "done": False
     }
-    tasks.append(new_task)
+    
     return JSONResponse(
         status_code=201,
-        content= new_task
+        content=new_task
     )
 
 @app.put("/tasks/{id}")
