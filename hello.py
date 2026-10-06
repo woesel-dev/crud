@@ -45,16 +45,27 @@ async def root():
 
 @app.get("/tasks")
 async def get_all_tasks():
-    return tasks
+    conn = sqlite3.connect('tasks.db')
+    conn.row_factory = sqlite3.Row
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM tasks")
+    rows = cursor.fetchall()
+    conn.close()
+    return [{"id": row["id"], "title": row["title"], "done": bool(row["done"])} for row in rows]
 
-@app.get("/task/{id}")
-async def get_task_by_id(id:int):
-    for task in tasks:
-        if task["id"] == id:
-            return task
+@app.get("/tasks/{id}")
+async def get_task_by_id(id: int):
+    conn = sqlite3.connect('tasks.db')
+    conn.row_factory = sqlite3.Row
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM tasks WHERE id = ?", (id,))
+    row = cursor.fetchone()
+    conn.close()
+    if row:
+        return {"id": row["id"], "title": row["title"], "done": bool(row["done"])}
     return JSONResponse(
         status_code=404,
-        content={"error": f"Task {id} not found"}
+        content={"error": "Task not found"}
     )
 
 @app.post("/tasks")
