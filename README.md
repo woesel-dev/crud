@@ -49,5 +49,16 @@ Resources
 
 - Quick Git: `git init`, `git add .`, `git commit -m "initial"`, `git branch -M main`, `git remote add origin <url>`, `git push -u origin main`
 
+## Stage 4: Explored SQLite
+
+Example SQL query executed on `tasks.db`:
+
+```sql
+SELECT * FROM tasks WHERE done = 1;
+```
+
+**Result:** Returned row `(2, "Write Lab Assignment", 1)`, filtering only completed tasks where `done = 1`. Updating the database directly shows the changes immediately in the API without restarting the server.
+
+
 
 
