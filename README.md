@@ -1,64 +1,51 @@
 # Task API
 
-Simple Task API built with FastAPI for Assignment 1.
+A CRUD Task API built with FastAPI and SQLite.
 
-What this is
-- A minimal in-memory CRUD API for tasks. Tasks are stored in a list in `hello.py` (no database).
+## What this is
+A database-backed CRUD API where tasks are stored persistently in a local SQLite database (`tasks.db`) instead of in-memory lists.
 
-Quick install & run (single command)
+## Why SQLite?
+- **Single file:** The entire database lives in a single local file (`tasks.db`), making it portable and easy to inspect.
+- **Zero setup:** SQLite is serverless and built directly into Python's standard library (`sqlite3`). There is no external database server, background service, or credentials to configure.
+- **Survives restarts:** Data is written to disk, so all tasks persist across server restarts.
 
+## Where the database lives
+- The database is stored in `tasks.db` at the project root.
+- It is created automatically on first run, and pre-seeded with 3 initial example tasks if empty.
+- `tasks.db` is added to `.gitignore` so every new clone starts fresh and initializes cleanly.
+
+## Quick install & run (single command)
 Run this from the project root:
 
 ```bash
 python3 -m pip install -r requirements.txt && uvicorn hello:app --reload --host 127.0.0.1 --port 8000
 ```
-Swagger screenshot
 
-Below is the Swagger UI screenshot included in this repository (file: `swagger.png`).
+Open the Swagger UI documentation at `http://127.0.0.1:8000/docs` to interact with the endpoints.
 
+## Database Screenshot
+Database view open in DB Browser for SQLite showing the `tasks` table and rows:
+
+![DB Browser for SQLite](db_browser.png)
+
+*(Swagger UI screenshot: `swagger.png`)*
 ![Swagger UI](swagger.png)
 
-Open the live docs at `http://127.0.0.1:8000/docs` to interact with the API.
-
-Endpoints
-
-- GET `/` — service info
+## Endpoints
+- GET `/` — API info and endpoints list
 - GET `/tasks` — list all tasks
-- GET `/task/{id}` — get task by id (integer)
-- POST `/tasks` — create task, body: `{ "title": "Buy milk" }` → returns created task (201)
-- PUT `/tasks/{id}` — update task title and/or done, body: `{ "title": "New", "done": true }` → returns updated task (200)
-- DELETE `/tasks/{id}` — remove task (204 No Content)
+- GET `/tasks/{id}` — get single task by ID
+- POST `/tasks` — create task, body: `{"title": "Buy milk"}` → returns created task (201)
+- PUT `/tasks/{id}` — update title and/or done status, body: `{"title": "Updated", "done": true}` → returns updated task (200)
+- DELETE `/tasks/{id}` — delete task by ID (204 No Content)
 - GET `/health` — health check
 
-Example `curl -i` (creating a task)
-
-```
-$ curl -i -H "Content-Type: application/json" -d '{"title":"Buy milk"}' http://127.0.0.1:8000/tasks
-HTTP/1.1 201 Created
-date: Tue, 01 Sep 2026 12:00:00 GMT
-content-type: application/json
-content-length: 45
-
-{"id":4,"title":"Buy milk","done":false}
-```
-
-Notes on the `curl` output above
-- The exact `id` and headers will vary depending on what is already in `tasks` and your environment.
-
-Resources
-
-- Quick Git: `git init`, `git add .`, `git commit -m "initial"`, `git branch -M main`, `git remote add origin <url>`, `git push -u origin main`
-
 ## Stage 4: Explored SQLite
-
-Example SQL query executed on `tasks.db`:
+Example SQL query executed directly on `tasks.db`:
 
 ```sql
 SELECT * FROM tasks WHERE done = 1;
 ```
 
-**Result:** Returned row `(2, "Write Lab Assignment", 1)`, filtering only completed tasks where `done = 1`. Updating the database directly shows the changes immediately in the API without restarting the server.
-
-
-
-
+**Result:** Returned row `(2, "Write Lab Assignment", 1)`, filtering only completed tasks where `done = 1`. Updating the database directly shows changes immediately across API endpoints without needing a server restart.
