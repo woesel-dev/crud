@@ -34,7 +34,7 @@ Database view open in DB Browser for SQLite showing the `tasks` table and rows:
 
 ## Endpoints
 - GET `/` — API info and endpoints list
-- GET `/tasks` — list all tasks
+- GET `/tasks` — list all tasks (supports query params `?search=query` and `?done=true|false`)
 - GET `/tasks/{id}` — get single task by ID
 - POST `/tasks` — create task, body: `{"title": "Buy milk"}` → returns created task (201)
 - PUT `/tasks/{id}` — update title and/or done status, body: `{"title": "Updated", "done": true}` → returns updated task (200)
@@ -49,3 +49,19 @@ SELECT * FROM tasks WHERE done = 1;
 ```
 
 **Result:** Returned row `(2, "Write Lab Assignment", 1)`, filtering only completed tasks where `done = 1`. Updating the database directly shows changes immediately across API endpoints without needing a server restart.
+
+## Optional Extras Implemented
+
+### 1. Search with SQL (`LIKE`)
+- `GET /tasks?search=book` filters matching task titles directly in the database using SQL's `LIKE` operator (`WHERE title LIKE ?`), avoiding filtering in Python loops.
+
+### 2. Filter by Status
+- `GET /tasks?done=true` and `GET /tasks?done=false` filter tasks in SQLite using a parameterized `WHERE done = ?` clause. Both search and status filters can also be combined.
+
+### 3. Timestamps (`created_at` and `updated_at`)
+- Each task record stores `created_at` and `updated_at` timestamps in ISO format.
+- `created_at` is set when the task is inserted and remains constant.
+- `updated_at` is updated whenever `PUT /tasks/{id}` modifies a task.
+
+> **Changing the table's shape:**
+> Adding `created_at` and `updated_at` columns after data already existed made it clear how tricky schema changes can be without automated tooling. We had to check for missing columns and backfill existing rows to avoid breaking existing queries, which immediately shows why migration systems are needed as applications grow.
